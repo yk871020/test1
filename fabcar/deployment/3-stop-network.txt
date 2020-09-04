@@ -1,0 +1,21 @@
+
+##########################
+###   結束網頁伺服器   ###
+##########################
+
+$ Ctrl+C
+
+
+##########################
+###   結束區塊鏈網路   ###
+##########################
+
+$ docker rm -f $(docker ps -aq)
+
+$ docker rmi -f $(docker images | grep fabcar | awk '{print $3}')
+
+$ docker rmi -f $(docker images -a -q dev*)
+
+$ docker network prune
+
+$ docker volume prune

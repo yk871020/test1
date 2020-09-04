@@ -1,0 +1,99 @@
+
+#############################################################
+###        <<<結束區塊鏈網路或清除前次操作資料>>>        ####
+### 清除前次操作的containers, images, networks, volumes  ####
+#############################################################
+
+$ docker rm -f $(docker ps -aq)
+
+$ docker rmi -f $(docker images | grep fabcar | awk '{print $3}')
+
+$ docker rmi -f $(docker images -a -q dev*)
+
+$ docker network prune
+
+$ docker volume prune
+
+
+##########################
+###   啟動區塊鏈網路   ###
+##########################
+
+$ chmod +x \
+    ~/fabric-proj/fabcar/startFabric.sh \
+    ~/fabric-proj/fabcar/network/byfn.sh \
+    ~/fabric-proj/fabcar/network/ccp-generate.sh \
+    ~/fabric-proj/fabcar/network/scripts/script.sh \
+	~/fabric-proj/fabcar/network/scripts/utils.sh
+
+$ cd ~/fabric-proj/fabcar/ && ./startFabric.sh
+
+
+##########################################################
+####   Generate CCP files for Org1 and Org2          #####
+####   /home/jeffrey/fabric-binary/bin/configtxgen   #####
+##########################################################
+
+$ cd ~/fabric-proj/fabcar/network && ./ccp-generate.sh
+
+
+############################
+###   清除前次操作資料   ###
+############################
+
+$ cd ~/fabric-proj/fabcar/application/server
+
+$ rm  -rf ./wallet/*
+
+$ rm -rf node_modules
+
+
+##########################
+###   安裝必要的套件   ###
+##########################
+
+$ npm install
+
+# 視需要執行下列安全性修復指令
+
+$ npm audit fix
+
+
+####################################################
+###   註冊一個憑證中心(CA)的管理者'admin'        ###
+###   產生管理者'admin'的私鑰、公鑰與X.509憑證   ###
+####################################################
+
+$ node enrollAdmin.js
+
+# 檢查'admin'的私鑰、公鑰與X.509憑證的發放結果是否正確
+# 如果正確，則會在wallet目錄下產生admin.id檔案，其中包含私鑰、公鑰與X.509憑證等三個資料
+
+$ cat ./wallet/admin.id
+
+
+########################################################
+###   由CA管理者'admin'來向CA註冊一個使用者'user1'   ###
+###   產生使用者'user1'的私鑰、公鑰與X.509憑證       ###
+########################################################
+
+$ node registerUser.js
+
+# 檢查'user1'的私鑰、公鑰與X.509憑證的發放結果是否正確
+# 如果正確，則會在wallet目錄下產生user1.id檔案，其中包含私鑰、公鑰與X.509憑證等三個資料
+
+$ cat ./wallet/user1.id
+
+
+##########################
+###   啟動網頁伺服器   ###
+##########################
+
+$ node app.js
+
+
+####################################
+###   <<< 伺服器端啟動完成 >>>   ###
+####################################
+
+# 下一步：在Ubuntu中開啟firefox瀏覽器，並在網址列輸入 http://localhost:8080/
